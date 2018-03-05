@@ -34,12 +34,19 @@ public class Gene
     public Gene(int value, bool isMutable = true) : this(isMutable)
     {
         this.Value = value;
+        this.IsMutable = isMutable;
     }
 
     public Gene Copy()
     {
         Gene geneCopy = new Gene();
         geneCopy.Value = Value;
+        if (SubGene.Genes.Count != 0)
+        {
+            Chromosome subGeneCopy = new Chromosome();
+            subGeneCopy.Genes = SubGene.Copy();
+            geneCopy.SubGene = subGeneCopy;
+        }
         return geneCopy;
     }
 }
