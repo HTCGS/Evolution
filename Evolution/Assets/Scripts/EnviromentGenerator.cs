@@ -25,24 +25,30 @@ public class EnviromentGenerator : MonoBehaviour
     {
         CellPrefab.transform.localScale = new Vector3(CellSize, CellSize, CellSize);
         BioPrefab.transform.localScale = new Vector3(BioSize, BioSize, BioSize);
+        //BioPrefab.transform.GetChild(0).transform.localScale = new Vector3(BioSize, BioSize, BioSize);
         Vector3 pos = Vector3.zero;
-        for (int i = 0; i < Width; i++)
-        {
-            for (int j = 0; j < Height; j++)
-            {
-                GameObject cell = Instantiate(CellPrefab, pos, Quaternion.identity);
-                cell.transform.SetParent(gameObject.transform);
-                pos.z += CellSize;
-            }
-            pos.z = 0;
-            pos.x += CellSize;
-        }
+        //for (int i = 0; i < Width; i++)
+        //{
+        //    for (int j = 0; j < Height; j++)
+        //    {
+        //        GameObject cell = Instantiate(CellPrefab, pos, Quaternion.identity);
+        //        cell.transform.SetParent(gameObject.transform);
+        //        pos.z += CellSize;
+        //    }
+        //    pos.z = 0;
+        //    pos.x += CellSize;
+        //}
+        pos.x = (Width / 2) * CellSize - (CellSize /2);
+        pos.z = (Height / 2) * CellSize - (CellSize / 2);
+        GameObject cell = Instantiate(CellPrefab, pos, Quaternion.identity);
+        cell.transform.SetParent(gameObject.transform);
+        cell.transform.localScale = new Vector3(Width * CellSize, 1, Height * CellSize);
+        GeneratePopulation();
         GeneratePopulation();
     }
 
     void Update()
     {
-
     }
 
     public int GetSunEnergy(Vector3 position)
@@ -68,11 +74,7 @@ public class EnviromentGenerator : MonoBehaviour
 
     public void GeneratePopulation()
     {
-        //Vector3 pos = new Vector3(Random.Range(0, VirtualMachine.Env.Width * VirtualMachine.Env.CellSize), 0,
-        //    Random.Range(0, VirtualMachine.Env.Height * VirtualMachine.Env.CellSize));
-
-        Vector3 pos = new Vector3(Random.Range(0, VirtualMachine.Env.Width) * VirtualMachine.Env.CellSize, 0,
-            (VirtualMachine.Env.Height - 1) * VirtualMachine.Env.CellSize);
+        Vector3 pos = new Vector3(Random.Range(0, Width) * CellSize, 0, (Height - 1) * CellSize);
         GameObject bio = Instantiate(VirtualMachine.Env.BioPrefab, pos, Quaternion.identity);
         bio.SetActive(true);
     }

@@ -9,8 +9,17 @@ public class Gene
     {
         get
         {
-            Gene gene = new Gene(0, false);
+            Gene gene = new Gene(0, true);
             gene.SubGene.Genes.Add(new Gene(0));
+            return gene;
+        }
+    }
+    public static Gene Predator
+    {
+        get
+        {
+            Gene gene = new Gene(0, true);
+            gene.SubGene.Genes.Add(new Gene(3));
             return gene;
         }
     }
@@ -19,28 +28,28 @@ public class Gene
 
     public Chromosome SubGene;
 
-    public bool IsMutable;
+    public bool IsImmutable;
 
     public Gene()
     {
         SubGene = new Chromosome();
     }
 
-    public Gene(bool isMutable) : this()
+    public Gene(bool isImmutable) : this()
     {
-        this.IsMutable = isMutable;
+        this.IsImmutable = isImmutable;
     }
 
-    public Gene(int value, bool isMutable = true) : this(isMutable)
+    public Gene(int value, bool isImmutable = false) : this(isImmutable)
     {
         this.Value = value;
-        this.IsMutable = isMutable;
     }
 
     public Gene Copy()
     {
         Gene geneCopy = new Gene();
         geneCopy.Value = Value;
+        geneCopy.IsImmutable = IsImmutable;
         if (SubGene.Genes.Count != 0)
         {
             Chromosome subGeneCopy = new Chromosome();

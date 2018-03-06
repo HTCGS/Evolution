@@ -36,30 +36,32 @@ public class Chromosome
         int mutatedGene = UnityEngine.Random.Range(0, chromSize + 1);
         if (mutatedGene == chromSize)
         {
-            int newGene = UnityEngine.Random.Range(0, 4);
-            if(newGene== 0)
-            {
-                int foodType = VirtualMachine.GetFoodType(this);
-                Gene gene = new Gene(newGene);
-                gene.SubGene = new Chromosome();
-                gene.SubGene.Genes.Add(new Gene(foodType));
-                Genes.Add(gene);
-            }
-            else Genes.Add(new Gene(UnityEngine.Random.Range(0, 4)));
+            //int newGene = UnityEngine.Random.Range(0, 4);
+            //if(newGene== 0)
+            //{
+            //    int foodType = VirtualMachine.GetFoodType(this);
+            //    Gene gene = new Gene(newGene);
+            //    gene.SubGene = new Chromosome();
+            //    gene.SubGene.Genes.Add(new Gene(foodType));
+            //    Genes.Add(gene);
+            //}
+            //else Genes.Add(new Gene(UnityEngine.Random.Range(0, 4)));
+            Genes.Add(new Gene(UnityEngine.Random.Range(0, 4)));
         }
         else
         {
             int newGene = UnityEngine.Random.Range(0, 4);
-            if (!Genes[mutatedGene].IsMutable)
+            if (Genes[mutatedGene].IsImmutable)
             {
                 if (chromSize == 1)
                 {
+                    Gene food = GetFoodGene();
                     int newFood = 0;
                     do
                     {
                         newFood = UnityEngine.Random.Range(0, 4);
-                    } while (newFood == Genes[mutatedGene].SubGene.Genes[0].Value);
-                    Genes[mutatedGene].SubGene.Genes[0].Value = newFood;
+                    } while (newFood == food.SubGene.Genes[0].Value);
+                    food.SubGene.Genes[0].Value = newFood;
                 }
                 else
                 {
@@ -72,12 +74,13 @@ public class Chromosome
                     {
                         try
                         {
+                            Gene food = GetFoodGene();
                             int newFood = 0;
                             do
                             {
                                 newFood = UnityEngine.Random.Range(0, 4);
-                            } while (newFood == Genes[mutatedGene].SubGene.Genes[0].Value);
-                            Genes[mutatedGene].SubGene.Genes[0].Value = newFood;
+                            } while (newFood == food.SubGene.Genes[0].Value);
+                            food.SubGene.Genes[0].Value = newFood;
                         }
                         catch
                         {
@@ -135,5 +138,24 @@ public class Chromosome
         Gene tmp = Genes[pos1];
         Genes[pos1] = Genes[pos2];
         Genes[pos2] = tmp;
+    }
+
+    private Gene GetFoodGene()
+    {
+        foreach (var gene in Genes)
+        {
+            if (gene.IsImmutable) return gene;
+        }
+        return null;
+    }
+
+    public void DisplayGenes()
+    {
+        string gLine = string.Empty;
+        foreach (var gene in Genes)
+        {
+            gLine += gene.Value;
+        }
+        Debug.Log(gLine);
     }
 }
