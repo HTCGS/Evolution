@@ -47,6 +47,7 @@ public class Creature : MonoBehaviour
                 Destroy(gameObject.transform.parent);
                 Destroy(gameObject);
             }
+            if (Energy >= MaxEnergy) Division();
             time = 0;
         }
 
@@ -63,6 +64,7 @@ public class Creature : MonoBehaviour
         {
             VirtualMachine.Step(this);
             if (DNA.GenePos >= DNA.Genes.Count) DNA.GenePos = 0;
+            if (Energy >= MaxEnergy) Division();
         }
     }
 

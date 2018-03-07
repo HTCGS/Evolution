@@ -16,27 +16,36 @@ static class VirtualMachine
         Chromosome chromosome = creature.DNA;
         for (int i = chromosome.GenePos; i < chromosome.Genes.Count; i++)
         {
+            int jump = 0;
             if (chromosome.Genes[i].Value == 0)
             {
-                FeedOn(creature);
+                jump = FeedOn(creature);
                 chromosome.GenePos++;
                 return;
             }
             else if (chromosome.Genes[i].Value == 1)
             {
-                Move(creature);
+                jump = Move(creature);
                 chromosome.GenePos++;
-                return;
+                if (jump == 0)
+                {
+                    creature.Energy -= 1;
+                    chromosome.GenePos = i + 1;
+                    return;
+                }
+                else
+                {
+                    i++;
+                }
             }
             else if (chromosome.Genes[i].Value == 2)
             {
-                LookUp(creature);
+                jump = LookUp(creature);
             }
             else if (chromosome.Genes[i].Value == 3)
             {
-                Rotate(creature);
+                jump = Rotate(creature);
             }
-            chromosome.GenePos++;
         }
     }
 
@@ -87,37 +96,27 @@ static class VirtualMachine
         int barrier = LookUp(creature);
         if (barrier == 0 || hunter)
         {
-            float xF = creature.transform.position.x - (float)Math.Truncate(creature.transform.position.x);
-            float zF = creature.transform.position.z - (float)Math.Truncate(creature.transform.position.z);
-            if (xF > 0.001f && zF > 0.001f)
-            {
-                if (xF != 0f || zF != 0)
-                {
-                    Debug.LogError(creature.transform.forward);
-                }
-            }
+            Vector3 forward = creature.transform.forward;
+            if (Mathf.Abs(forward.x) < 0.01f) forward.x = 0;
+            if (Mathf.Abs(forward.z) < 0.01f) forward.z = 0;
 
-            Vector3 nextPos = creature.transform.position + (creature.transform.forward * Env.CellSize);
+            Vector3 nextPos = creature.transform.position + (forward * Env.CellSize);
             if (nextPos.x < 0 || nextPos.x > (Env.Width - 1) * Env.CellSize || nextPos.z < 0 || nextPos.z > (Env.Height - 1) * Env.CellSize)
             {
                 return -1;
             }
-            if ( nextPos.x % Env.CellSize == 0 && nextPos.z % Env.CellSize == 0) creature.transform.position = nextPos;
+            if (Math.Abs(forward.x) == 0f || Math.Abs(forward.x) == 1f
+                || Math.Abs(forward.z) == 1f || Math.Abs(forward.z) == 0f) creature.transform.position = nextPos;
             else
             {
-                creature.transform.position += creature.transform.forward * Mathf.Sqrt(2) * Env.CellSize;
+                nextPos = Vector3.zero;
+                if (creature.transform.forward.x > 0) nextPos.x = 1;
+                else nextPos.x = -1;
+                if (creature.transform.forward.z > 0) nextPos.z = 1;
+                else nextPos.z = -1;
+                creature.transform.position += nextPos;
             }
-            creature.Energy -= 1;
-
-            xF = creature.transform.position.x - (float)Math.Truncate(creature.transform.position.x);
-            zF = creature.transform.position.z - (float)Math.Truncate(creature.transform.position.z);
-            if (xF > 0.001f && zF > 0.001f)
-            {
-                if (xF != 0f || zF != 0)
-                {
-                    Debug.LogError(creature.transform.forward);
-                }
-            }
+            return 0;
         }
         return barrier;
     }
@@ -135,7 +134,7 @@ static class VirtualMachine
         int rotation = UnityEngine.Random.Range(0, 7);
         int angle = rotation * 45;
         Vector3 euler = creature.transform.rotation.eulerAngles;
-        creature.transform.rotation = Quaternion.Euler((int)euler.x, (int)euler.y + angle, (int)euler.z);
+        creature.transform.rotation = Quaternion.Euler(Mathf.RoundToInt(euler.x), Mathf.RoundToInt(euler.y + angle), Mathf.RoundToInt(euler.z));
         return 0;
     }
 
@@ -152,14 +151,17 @@ static class VirtualMachine
     public static RaycastHit RayCast(GameObject gameObject)
     {
         RaycastHit raycastHit = new RaycastHit();
-        Physics.Raycast(gameObject.transform.position, gameObject.transform.forward, out raycastHit, Env.CellSize * 1.2f);
+        float range = Env.CellSize;
+        if ((Math.Abs(gameObject.transform.forward.x) != 0f && Math.Abs(gameObject.transform.forward.x) != 1f)
+                || (Math.Abs(gameObject.transform.forward.z) != 1f && Math.Abs(gameObject.transform.forward.z) != 0f)) range *= Mathf.Sqrt(2);
+            Physics.Raycast(gameObject.transform.position, gameObject.transform.forward, out raycastHit, range);
         return raycastHit;
     }
 
     public static RaycastHit RayCast(GameObject gameObject, Vector3 direction)
     {
         RaycastHit raycastHit = new RaycastHit();
-        Physics.Raycast(gameObject.transform.position, direction, out raycastHit, Env.CellSize * 1.2f);
+        Physics.Raycast(gameObject.transform.position, direction, out raycastHit, Env.CellSize);
         return raycastHit;
     }
 }
