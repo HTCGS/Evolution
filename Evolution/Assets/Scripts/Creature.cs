@@ -29,31 +29,35 @@ public class Creature : MonoBehaviour
 
     void Update()
     {
-        //time += Time.deltaTime;
+        time += Time.deltaTime;
 
-        //if (time >= 0.5)
+        //if (time >= 0.3)
         {
             VirtualMachine.Step(this);
             if (DNA.GenePos >= DNA.Genes.Count) DNA.GenePos = 0;
             Energy--;
             if (Energy <= 0)
             {
-                Destroy(gameObject.transform.parent);
-                Destroy(gameObject);
+                EvolutionEngine.GiveBackObject(gameObject);
             }
             LifeTime++;
             if (LifeTime >= MaxLifeTime)
             {
-                Destroy(gameObject.transform.parent);
-                Destroy(gameObject);
+                DNA.GenePos = 0;
+                EvolutionEngine.GiveBackObject(gameObject);
             }
             if (Energy >= MaxEnergy) Division();
             time = 0;
         }
-        
-        if (Energy >= MaxEnergy) Division();
 
         //Test();
+    }
+
+    private void OnEnable()
+    {
+        Energy = 1;
+        LifeTime = 0;
+        time = 0;
     }
 
     private void Test()
@@ -94,27 +98,37 @@ public class Creature : MonoBehaviour
 
         if (freePos.Count == 0)
         {
-            Destroy(gameObject);
+            //EvolutionEngine.GiveBackObject(gameObject);
         }
         else
         {
             Vector3 pos = freePos[Random.Range(0, freePos.Count)];
-            GameObject child = Instantiate(VirtualMachine.Env.BioPrefab, this.transform.position + pos, Quaternion.identity);
-            Color parentColor = this.GetComponentInChildren<Renderer>().material.color;
-            child.GetComponentInChildren<Renderer>().material.color = new Color(parentColor.r, parentColor.g, parentColor.b, parentColor.a);
+            GameObject child = EvolutionEngine.TakeObject();
+            child.transform.position = this.transform.position + pos;
             Creature childCreature = child.GetComponent<Creature>();
             VirtualMachine.Rotate(childCreature);
             List<Gene> genes = this.DNA.Copy();
             childCreature.InitializeDNA(genes);
-            //childCreature.DNA.Genes = genes;
-            if (Random.Range(0, 100) < 5)
-            {
-                childCreature.DNA.Mutate();
-                //childCreature.FoodColor();
-                child.GetComponentInChildren<Renderer>().material.color = EvolutionEngine.GetMutationColor(VirtualMachine.GetFoodType(childCreature.DNA));
-                //childCreature.DNA.DisplayGenes();
-            }
             child.SetActive(true);
+            child.transform.GetChild(0).gameObject.SetActive(true);
+            GameObject childVisual = null;
+            //try
+            {
+                childVisual = child.transform.GetChild(0).gameObject;
+                Color parentColor = this.GetComponentInChildren<Renderer>().material.color;
+                childVisual.GetComponent<Renderer>().material.color = new Color(parentColor.r, parentColor.g, parentColor.b, parentColor.a);
+                if (Random.Range(0, 100) < 5)
+                {
+                    childCreature.DNA.Mutate();
+                    child.GetComponentInChildren<Renderer>().material.color = EvolutionEngine.GetMutationColor(VirtualMachine.GetFoodType(childCreature.DNA));
+                    //childCreature.DNA.DisplayGenes();
+                }
+            }
+           // catch
+            {
+                //Debug.Log("ooup");
+                //Debug.Log(child.name);
+            }
             Energy = 1;
         }
     }

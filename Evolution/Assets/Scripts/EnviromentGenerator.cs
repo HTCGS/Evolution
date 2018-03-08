@@ -27,36 +27,19 @@ public class EnviromentGenerator : MonoBehaviour
     {
         CellPrefab.transform.localScale = new Vector3(CellSize, CellSize, CellSize);
         BioPrefab.transform.localScale = new Vector3(BioSize, BioSize, BioSize);
-        //BioPrefab.transform.GetChild(0).transform.localScale = new Vector3(BioSize, BioSize, BioSize);
         Vector3 pos = Vector3.zero;
-        //for (int i = 0; i < Width; i++)
-        //{
-        //    for (int j = 0; j < Height; j++)
-        //    {
-        //        GameObject cell = Instantiate(CellPrefab, pos, Quaternion.identity);
-        //        cell.transform.SetParent(gameObject.transform);
-        //        pos.z += CellSize;
-        //    }
-        //    pos.z = 0;
-        //    pos.x += CellSize;
-        //}
         pos.x = (Width / 2) * CellSize - (CellSize /2);
         pos.z = (Height / 2) * CellSize - (CellSize / 2);
         GameObject cell = Instantiate(CellPrefab, pos, Quaternion.identity);
         cell.transform.SetParent(gameObject.transform);
         cell.transform.localScale = new Vector3(Width * CellSize, 1, Height * CellSize);
+        EvolutionEngine.InitializeObjectPool(Width * Height, BioPrefab);
         GeneratePopulation();
         //GeneratePopulation();
     }
 
     void Update()
     {
-        time += Time.deltaTime;
-        if (time >= 10)
-        {
-            System.GC.Collect();
-            time = 0;
-        }
     }
 
     public int GetSunEnergy(Vector3 position)
@@ -83,7 +66,9 @@ public class EnviromentGenerator : MonoBehaviour
     public void GeneratePopulation()
     {
         Vector3 pos = new Vector3(Random.Range(0, Width) * CellSize, 0, (Height - 1) * CellSize);
-        GameObject bio = Instantiate(VirtualMachine.Env.BioPrefab, pos, Quaternion.identity);
+        GameObject bio = EvolutionEngine.TakeObject();
+        bio.transform.position = pos;
         bio.SetActive(true);
+        bio.transform.GetChild(0).gameObject.SetActive(true);
     }
 }

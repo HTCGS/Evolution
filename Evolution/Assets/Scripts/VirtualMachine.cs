@@ -68,8 +68,9 @@ static class VirtualMachine
             {
                 if (raycastHit.transform.gameObject.tag == "Dead")
                 {
-                    UnityEngine.Object.Destroy(raycastHit.transform.parent.gameObject);
-                    UnityEngine.Object.Destroy(raycastHit.transform.gameObject);
+                    //UnityEngine.Object.Destroy(raycastHit.transform.parent.gameObject);
+                    //UnityEngine.Object.Destroy(raycastHit.transform.gameObject);
+                    EvolutionEngine.GiveBackObject(raycastHit.transform.parent.gameObject);
                     Move(creature, true);
                     creature.Energy += 5;
                 }
@@ -82,8 +83,9 @@ static class VirtualMachine
             {
                 if (raycastHit.transform.gameObject.tag == "Microorganism")
                 {
-                    UnityEngine.Object.Destroy(raycastHit.transform.parent.gameObject);
-                    UnityEngine.Object.Destroy(raycastHit.transform.gameObject);
+                    //UnityEngine.Object.Destroy(raycastHit.transform.parent.gameObject);
+                    //UnityEngine.Object.Destroy(raycastHit.transform.gameObject);
+                    EvolutionEngine.GiveBackObject(raycastHit.transform.parent.gameObject);
                     Move(creature, true);
                     creature.Energy += 8;
                 }
@@ -148,23 +150,6 @@ static class VirtualMachine
         }
         return foodType;
     }
-
-    //public static RaycastHit RayCast(GameObject gameObject)
-    //{
-    //    RaycastHit raycastHit = new RaycastHit();
-    //    float range = Env.CellSize;
-    //    if ((Math.Abs(gameObject.transform.forward.x) != 0f && Math.Abs(gameObject.transform.forward.x) != 1f)
-    //            || (Math.Abs(gameObject.transform.forward.z) != 1f && Math.Abs(gameObject.transform.forward.z) != 0f)) range *= Mathf.Sqrt(2);
-    //        Physics.Raycast(gameObject.transform.position, gameObject.transform.forward, out raycastHit, range);
-    //    return raycastHit;
-    //}
-
-    //public static RaycastHit RayCast(GameObject gameObject, Vector3 direction)
-    //{
-    //    RaycastHit raycastHit = new RaycastHit();
-    //    Physics.Raycast(gameObject.transform.position, direction, out raycastHit, Env.CellSize);
-    //    return raycastHit;
-    //}
 
     public static RaycastHit RayCast(GameObject gameObject)
     {

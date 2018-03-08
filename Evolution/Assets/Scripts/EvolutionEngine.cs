@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
 
 public static class EvolutionEngine
 {
@@ -7,8 +9,43 @@ public static class EvolutionEngine
     public static int GrayMutation;
     public static int RedMutation;
 
+    public static List<GameObject> ObjectPool;
+
+    public static void InitializeObjectPool(int objectNum, GameObject prefab)
+    {
+        ObjectPool = new List<GameObject>();
+        Vector3 pos = new Vector3(-3f, 0, -3f);
+        for (int i = 0; i < objectNum; i++)
+        {
+            GameObject gameObject = Object.Instantiate(prefab, pos, Quaternion.identity);
+            gameObject.name = i.ToString();
+            gameObject.GetComponentInChildren<Renderer>().material.color = new Color(0, 255, 0, 1);
+            gameObject.SetActive(false);
+            ObjectPool.Add(gameObject);
+        }
+    }
+
+    public static GameObject TakeObject()
+    {
+        GameObject gameObject = ObjectPool[0];
+        ObjectPool.RemoveAt(0);
+        return gameObject;
+    }
+
+    public static void GiveBackObject(GameObject gameObject)
+    {
+        gameObject.SetActive(false);
+        gameObject.transform.position = new Vector3(-3f, 0, -3f);
+        ObjectPool.Add(gameObject);
+    }
+
     public static Color GetMutationColor(int foodType)
     {
+        if (GreenMutation == 1000000) GreenMutation = 0;
+        if (BlueMutation == 1000000) BlueMutation = 0;
+        if (RedMutation == 1000000) RedMutation = 0;
+        if (GrayMutation == 1000000) GrayMutation = 0;
+
         Color color = Color.white;
         if (foodType == 0)
         {
