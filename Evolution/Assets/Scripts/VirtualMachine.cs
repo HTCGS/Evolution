@@ -26,16 +26,16 @@ static class VirtualMachine
             else if (chromosome.Genes[i].Value == 1)
             {
                 jump = Move(creature);
-                chromosome.GenePos++;
                 if (jump == 0)
                 {
                     creature.Energy -= 1;
-                    chromosome.GenePos = i + 1;
+                    chromosome.GenePos++; ;
                     return;
                 }
                 else
                 {
                     i++;
+                    chromosome.GenePos++;
                 }
             }
             else if (chromosome.Genes[i].Value == 2)
@@ -46,6 +46,7 @@ static class VirtualMachine
             {
                 jump = Rotate(creature);
             }
+            chromosome.GenePos++;
         }
     }
 
@@ -148,20 +149,35 @@ static class VirtualMachine
         return foodType;
     }
 
+    //public static RaycastHit RayCast(GameObject gameObject)
+    //{
+    //    RaycastHit raycastHit = new RaycastHit();
+    //    float range = Env.CellSize;
+    //    if ((Math.Abs(gameObject.transform.forward.x) != 0f && Math.Abs(gameObject.transform.forward.x) != 1f)
+    //            || (Math.Abs(gameObject.transform.forward.z) != 1f && Math.Abs(gameObject.transform.forward.z) != 0f)) range *= Mathf.Sqrt(2);
+    //        Physics.Raycast(gameObject.transform.position, gameObject.transform.forward, out raycastHit, range);
+    //    return raycastHit;
+    //}
+
+    //public static RaycastHit RayCast(GameObject gameObject, Vector3 direction)
+    //{
+    //    RaycastHit raycastHit = new RaycastHit();
+    //    Physics.Raycast(gameObject.transform.position, direction, out raycastHit, Env.CellSize);
+    //    return raycastHit;
+    //}
+
     public static RaycastHit RayCast(GameObject gameObject)
     {
-        RaycastHit raycastHit = new RaycastHit();
-        float range = Env.CellSize;
-        if ((Math.Abs(gameObject.transform.forward.x) != 0f && Math.Abs(gameObject.transform.forward.x) != 1f)
-                || (Math.Abs(gameObject.transform.forward.z) != 1f && Math.Abs(gameObject.transform.forward.z) != 0f)) range *= Mathf.Sqrt(2);
-            Physics.Raycast(gameObject.transform.position, gameObject.transform.forward, out raycastHit, range);
-        return raycastHit;
+        return RayCast(gameObject, gameObject.transform.forward);
     }
 
     public static RaycastHit RayCast(GameObject gameObject, Vector3 direction)
     {
         RaycastHit raycastHit = new RaycastHit();
-        Physics.Raycast(gameObject.transform.position, direction, out raycastHit, Env.CellSize);
+        float range = Env.CellSize;
+        if ((Math.Abs(direction.x) != 0f && Math.Abs(direction.x) != 1f)
+                    || (Math.Abs(direction.z) != 1f && Math.Abs(direction.z) != 0f)) range *= Mathf.Sqrt(2);
+        Physics.Raycast(gameObject.transform.position, direction, out raycastHit, range);
         return raycastHit;
     }
 }

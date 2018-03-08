@@ -29,9 +29,9 @@ public class Creature : MonoBehaviour
 
     void Update()
     {
-        time += Time.deltaTime;
+        //time += Time.deltaTime;
 
-        if (time >= 0.5)
+        //if (time >= 0.5)
         {
             VirtualMachine.Step(this);
             if (DNA.GenePos >= DNA.Genes.Count) DNA.GenePos = 0;
@@ -50,7 +50,7 @@ public class Creature : MonoBehaviour
             if (Energy >= MaxEnergy) Division();
             time = 0;
         }
-
+        
         if (Energy >= MaxEnergy) Division();
 
         //Test();
@@ -112,7 +112,7 @@ public class Creature : MonoBehaviour
                 childCreature.DNA.Mutate();
                 //childCreature.FoodColor();
                 child.GetComponentInChildren<Renderer>().material.color = EvolutionEngine.GetMutationColor(VirtualMachine.GetFoodType(childCreature.DNA));
-                childCreature.DNA.DisplayGenes();
+                //childCreature.DNA.DisplayGenes();
             }
             child.SetActive(true);
             Energy = 1;

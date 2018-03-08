@@ -21,6 +21,8 @@ public class EnviromentGenerator : MonoBehaviour
     public float MineralIntensity;
     public float MineralPower;
 
+    private float time;
+
     void Start()
     {
         CellPrefab.transform.localScale = new Vector3(CellSize, CellSize, CellSize);
@@ -44,11 +46,17 @@ public class EnviromentGenerator : MonoBehaviour
         cell.transform.SetParent(gameObject.transform);
         cell.transform.localScale = new Vector3(Width * CellSize, 1, Height * CellSize);
         GeneratePopulation();
-        GeneratePopulation();
+        //GeneratePopulation();
     }
 
     void Update()
     {
+        time += Time.deltaTime;
+        if (time >= 10)
+        {
+            System.GC.Collect();
+            time = 0;
+        }
     }
 
     public int GetSunEnergy(Vector3 position)
@@ -57,7 +65,7 @@ public class EnviromentGenerator : MonoBehaviour
         float height = Height * CellSize;
         if (position.z >= height - SunPower)
         {
-            energy = Mathf.FloorToInt(Mathf.Lerp(SunIntensity, 0, (height - position.z - 1) / SunPower));
+            energy = Mathf.FloorToInt(Mathf.Lerp(SunIntensity, 0, (height - position.z - 1) / (SunPower * CellSize)));
         }
         return energy;
     }
@@ -67,7 +75,7 @@ public class EnviromentGenerator : MonoBehaviour
         int energy = 0;
         if (position.z < MineralPower)
         {
-            energy = Mathf.FloorToInt(Mathf.Lerp(MineralIntensity, 0, position.z / MineralPower));
+            energy = Mathf.FloorToInt(Mathf.Lerp(MineralIntensity, 0, position.z / (MineralPower * CellSize)));
         }
         return energy;
     }
