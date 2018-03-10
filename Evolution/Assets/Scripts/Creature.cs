@@ -21,9 +21,6 @@ public class Creature : MonoBehaviour
         {
             DNA = new Chromosome();
             DNA.Genes.Add(Gene.Photosynthesis);
-            //DNA.Genes.Add(Gene.Predator);
-            //DNA.Genes.Add(Gene.Photosynthesis);
-            //DNA.Genes.Add(new Gene(1));
         }
     }
 
@@ -31,11 +28,11 @@ public class Creature : MonoBehaviour
     {
         time += Time.deltaTime;
 
-        //if (time >= 0.3)
+        //if (time >= 0.1)
         {
             VirtualMachine.Step(this);
             if (DNA.GenePos >= DNA.Genes.Count) DNA.GenePos = 0;
-            Energy--;
+            //Energy--;
             if (Energy <= 0)
             {
                 EvolutionEngine.GiveBackObject(gameObject);
@@ -44,6 +41,7 @@ public class Creature : MonoBehaviour
             if (LifeTime >= MaxLifeTime)
             {
                 DNA.GenePos = 0;
+                //Statistics.AddOldestDNA(this);
                 EvolutionEngine.GiveBackObject(gameObject);
             }
             if (Energy >= MaxEnergy) Division();
@@ -106,28 +104,20 @@ public class Creature : MonoBehaviour
             GameObject child = EvolutionEngine.TakeObject();
             child.transform.position = this.transform.position + pos;
             Creature childCreature = child.GetComponent<Creature>();
-            VirtualMachine.Rotate(childCreature);
+            VirtualMachine.Rotate(child);
             List<Gene> genes = this.DNA.Copy();
             childCreature.InitializeDNA(genes);
             child.SetActive(true);
             child.transform.GetChild(0).gameObject.SetActive(true);
             GameObject childVisual = null;
-            //try
+            childVisual = child.transform.GetChild(0).gameObject;
+            Color parentColor = this.GetComponentInChildren<Renderer>().material.color;
+            childVisual.GetComponent<Renderer>().material.color = new Color(parentColor.r, parentColor.g, parentColor.b, parentColor.a);
+            if (Random.Range(0, 100) < 5)
             {
-                childVisual = child.transform.GetChild(0).gameObject;
-                Color parentColor = this.GetComponentInChildren<Renderer>().material.color;
-                childVisual.GetComponent<Renderer>().material.color = new Color(parentColor.r, parentColor.g, parentColor.b, parentColor.a);
-                if (Random.Range(0, 100) < 5)
-                {
-                    childCreature.DNA.Mutate();
-                    child.GetComponentInChildren<Renderer>().material.color = EvolutionEngine.GetMutationColor(VirtualMachine.GetFoodType(childCreature.DNA));
-                    //childCreature.DNA.DisplayGenes();
-                }
-            }
-           // catch
-            {
-                //Debug.Log("ooup");
-                //Debug.Log(child.name);
+                childCreature.DNA.Mutate();
+                child.GetComponentInChildren<Renderer>().material.color = EvolutionEngine.GetMutationColor(VirtualMachine.GetFoodType(childCreature.DNA));
+                //childCreature.DNA.DisplayGenes();
             }
             Energy = 1;
         }

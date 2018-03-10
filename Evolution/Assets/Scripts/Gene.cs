@@ -23,6 +23,15 @@ public class Gene
             return gene;
         }
     }
+    public static Gene Dead
+    {
+        get
+        {
+            Gene gene = new Gene(1, false);
+            return gene;
+
+        }
+    }
 
     public int Value;
 

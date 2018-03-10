@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class EnviromentGenerator : MonoBehaviour
@@ -22,6 +23,7 @@ public class EnviromentGenerator : MonoBehaviour
     public float MineralPower;
 
     private float time;
+    private bool run = true;
 
     void Start()
     {
@@ -40,6 +42,20 @@ public class EnviromentGenerator : MonoBehaviour
 
     void Update()
     {
+        time += Time.deltaTime;
+        if (time >= 1 || run)
+        {
+            GameObject[] enabled = GameObject.FindGameObjectsWithTag("Microorganism");
+            List<Creature> pop = new List<Creature>();
+            foreach (var item in enabled)
+            {
+                pop.Add(item.GetComponent<Creature>());
+            }
+            //Statistics.Analize(pop);
+            Statistics.GetAverageDNA(pop);
+            time = 0;
+            run = false;
+        }
     }
 
     public int GetSunEnergy(Vector3 position)
@@ -70,5 +86,10 @@ public class EnviromentGenerator : MonoBehaviour
         bio.transform.position = pos;
         bio.SetActive(true);
         bio.transform.GetChild(0).gameObject.SetActive(true);
+    }
+
+    private void OnApplicationQuit()
+    {
+        Statistics.Save();  
     }
 }

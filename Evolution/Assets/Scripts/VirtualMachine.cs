@@ -25,7 +25,7 @@ static class VirtualMachine
             }
             else if (chromosome.Genes[i].Value == 1)
             {
-                jump = Move(creature);
+                jump = Move(creature.gameObject);
                 if (jump == 0)
                 {
                     creature.Energy -= 1;
@@ -34,17 +34,22 @@ static class VirtualMachine
                 }
                 else
                 {
-                    i++;
-                    chromosome.GenePos++;
+                    //i++;
+                    //chromosome.GenePos++;
                 }
             }
             else if (chromosome.Genes[i].Value == 2)
             {
-                jump = LookUp(creature);
+                jump = LookUp(creature.gameObject);
+                if(jump != 0)
+                {
+                    i++;
+                    chromosome.GenePos++;
+                }
             }
             else if (chromosome.Genes[i].Value == 3)
             {
-                jump = Rotate(creature);
+                jump = Rotate(creature.gameObject);
             }
             chromosome.GenePos++;
         }
@@ -66,27 +71,10 @@ static class VirtualMachine
             RaycastHit raycastHit = RayCast(creature.gameObject);
             if (raycastHit.transform != null)
             {
-                if (raycastHit.transform.gameObject.tag == "Dead")
+                if (raycastHit.transform.parent.gameObject.tag == "Microorganism")
                 {
-                    //UnityEngine.Object.Destroy(raycastHit.transform.parent.gameObject);
-                    //UnityEngine.Object.Destroy(raycastHit.transform.gameObject);
                     EvolutionEngine.GiveBackObject(raycastHit.transform.parent.gameObject);
-                    Move(creature, true);
-                    creature.Energy += 5;
-                }
-            }
-        }
-        else if (foodType == 3)
-        {
-            RaycastHit raycastHit = RayCast(creature.gameObject);
-            if (raycastHit.transform != null)
-            {
-                if (raycastHit.transform.gameObject.tag == "Microorganism")
-                {
-                    //UnityEngine.Object.Destroy(raycastHit.transform.parent.gameObject);
-                    //UnityEngine.Object.Destroy(raycastHit.transform.gameObject);
-                    EvolutionEngine.GiveBackObject(raycastHit.transform.parent.gameObject);
-                    Move(creature, true);
+                    Move(creature.gameObject, true);
                     creature.Energy += 8;
                 }
             }
@@ -94,50 +82,89 @@ static class VirtualMachine
         return 0;
     }
 
-    public static int Move(Creature creature, bool hunter = false)
+    public static int Move(GameObject gameObject, bool hunter = false)
     {
-        int barrier = LookUp(creature);
+        int barrier = LookUp(gameObject);
         if (barrier == 0 || hunter)
         {
-            Vector3 forward = creature.transform.forward;
+            Vector3 forward = gameObject.transform.forward;
             if (Mathf.Abs(forward.x) < 0.01f) forward.x = 0;
             if (Mathf.Abs(forward.z) < 0.01f) forward.z = 0;
 
-            Vector3 nextPos = creature.transform.position + (forward * Env.CellSize);
+            Vector3 nextPos = gameObject.transform.position + (forward * Env.CellSize);
             if (nextPos.x < 0 || nextPos.x > (Env.Width - 1) * Env.CellSize || nextPos.z < 0 || nextPos.z > (Env.Height - 1) * Env.CellSize)
             {
                 return -1;
             }
+
+            //if (nextPos.z < 0 || nextPos.z > (Env.Height - 1) * Env.CellSize)
+            //{
+            //    return -1;
+            //}   
+            //if (nextPos.x < 0 || nextPos.x > (Env.Width - 1) * Env.CellSize)
+            //{
+            //    if (nextPos.x < 0)
+            //    {
+            //        Vector3 otherSide = new Vector3(Env.Width * Env.CellSize, gameObject.transform.position.y, gameObject.transform.position.z);
+            //        barrier = LookUp(otherSide, gameObject.transform.forward);
+            //        if (barrier == 0)
+            //        {
+            //            nextPos = otherSide + (forward * Env.CellSize);
+            //            gameObject.transform.position = otherSide;
+            //        }
+            //        else return -1;
+            //    }
+            //    else if (nextPos.x > (Env.Width - 1) * Env.CellSize)
+            //    {
+            //        Vector3 otherSide = new Vector3(-1, gameObject.transform.position.y, gameObject.transform.position.z);
+            //        barrier = LookUp(otherSide, gameObject.transform.forward);
+            //        if (barrier == 0)
+            //        {
+            //            nextPos = otherSide + (forward * Env.CellSize);
+            //            gameObject.transform.position = otherSide;
+            //        }
+            //        else return -1;
+            //    }
+            //}
+
             if (Math.Abs(forward.x) == 0f || Math.Abs(forward.x) == 1f
-                || Math.Abs(forward.z) == 1f || Math.Abs(forward.z) == 0f) creature.transform.position = nextPos;
+                || Math.Abs(forward.z) == 1f || Math.Abs(forward.z) == 0f) gameObject.transform.position = nextPos;
             else
             {
                 nextPos = Vector3.zero;
-                if (creature.transform.forward.x > 0) nextPos.x = 1;
+                if (gameObject.transform.forward.x > 0) nextPos.x = 1;
                 else nextPos.x = -1;
-                if (creature.transform.forward.z > 0) nextPos.z = 1;
+                if (gameObject.transform.forward.z > 0) nextPos.z = 1;
                 else nextPos.z = -1;
-                creature.transform.position += nextPos;
+                gameObject.transform.position += nextPos;
             }
             return 0;
         }
         return barrier;
     }
 
-    public static int LookUp(Creature creature)
+    public static int LookUp(GameObject gameObject)
     {
         int barrier = 0;
-        RaycastHit raycastHit = RayCast(creature.gameObject);
+        RaycastHit raycastHit = RayCast(gameObject);
         if (raycastHit.transform != null) barrier = 1;
         return barrier;
     }
 
-    public static int Rotate(Creature creature)
+    public static int LookUp(Vector3 pos, Vector3 direction)
+    {
+        int barrier = 0;
+        RaycastHit raycastHit = RayCast(pos, direction);
+        if (raycastHit.transform != null) barrier = 1;
+        return barrier;
+    }
+
+    public static int Rotate(GameObject gameObject)
     {
         int rotation = UnityEngine.Random.Range(0, 7);
         int angle = rotation * 45;
-        Vector3 euler = creature.transform.rotation.eulerAngles;
-        creature.transform.rotation = Quaternion.Euler(Mathf.RoundToInt(euler.x), Mathf.RoundToInt(euler.y + angle), Mathf.RoundToInt(euler.z));
+        Vector3 euler = gameObject.transform.rotation.eulerAngles;
+        gameObject.transform.rotation = Quaternion.Euler(Mathf.RoundToInt(euler.x), Mathf.RoundToInt(euler.y + angle), Mathf.RoundToInt(euler.z));
         return 0;
     }
 
@@ -158,11 +185,16 @@ static class VirtualMachine
 
     public static RaycastHit RayCast(GameObject gameObject, Vector3 direction)
     {
+        return RayCast(gameObject.transform.position, direction);
+    }
+
+    public static RaycastHit RayCast(Vector3 pos, Vector3 direction)
+    {
         RaycastHit raycastHit = new RaycastHit();
         float range = Env.CellSize;
         if ((Math.Abs(direction.x) != 0f && Math.Abs(direction.x) != 1f)
                     || (Math.Abs(direction.z) != 1f && Math.Abs(direction.z) != 0f)) range *= Mathf.Sqrt(2);
-        Physics.Raycast(gameObject.transform.position, direction, out raycastHit, range);
+        Physics.Raycast(pos, direction, out raycastHit, range);
         return raycastHit;
     }
 }

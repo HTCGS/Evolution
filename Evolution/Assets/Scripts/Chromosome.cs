@@ -34,20 +34,7 @@ public class Chromosome
     {
         int chromSize = Genes.Count;
         int mutatedGene = UnityEngine.Random.Range(0, chromSize + 1);
-        if (mutatedGene == chromSize)
-        {
-            //int newGene = UnityEngine.Random.Range(0, 4);
-            //if(newGene== 0)
-            //{
-            //    int foodType = VirtualMachine.GetFoodType(this);
-            //    Gene gene = new Gene(newGene);
-            //    gene.SubGene = new Chromosome();
-            //    gene.SubGene.Genes.Add(new Gene(foodType));
-            //    Genes.Add(gene);
-            //}
-            //else Genes.Add(new Gene(UnityEngine.Random.Range(0, 4)));
-            Genes.Add(new Gene(UnityEngine.Random.Range(0, 4)));
-        }
+        if (mutatedGene == chromSize) Genes.Add(new Gene(UnityEngine.Random.Range(0, 4)));
         else
         {
             int newGene = UnityEngine.Random.Range(0, 4);
@@ -59,7 +46,7 @@ public class Chromosome
                     int newFood = 0;
                     do
                     {
-                        newFood = UnityEngine.Random.Range(0, 4);
+                        newFood = UnityEngine.Random.Range(0, 3);
                     } while (newFood == food.SubGene.Genes[0].Value);
                     food.SubGene.Genes[0].Value = newFood;
                 }
@@ -72,20 +59,13 @@ public class Chromosome
                     }
                     else
                     {
-                        try
+                        Gene food = GetFoodGene();
+                        int newFood = 0;
+                        do
                         {
-                            Gene food = GetFoodGene();
-                            int newFood = 0;
-                            do
-                            {
-                                newFood = UnityEngine.Random.Range(0, 4);
-                            } while (newFood == food.SubGene.Genes[0].Value);
-                            food.SubGene.Genes[0].Value = newFood;
-                        }
-                        catch
-                        {
-
-                        }
+                            newFood = UnityEngine.Random.Range(0, 3);
+                        } while (newFood == food.SubGene.Genes[0].Value);
+                        food.SubGene.Genes[0].Value = newFood;
                     }
                 }
             }
@@ -110,18 +90,18 @@ public class Chromosome
             int direction = UnityEngine.Random.Range(0, 100);
             if (direction < 50)
             {
-                if(genePos == 0)
+                if (genePos == 0)
                 {
                     Swap(0, Genes.Count - 1);
                 }
                 else
                 {
-                    Swap(genePos, genePos -1 );
+                    Swap(genePos, genePos - 1);
                 }
             }
             else
             {
-                if(genePos == Genes.Count - 1)
+                if (genePos == Genes.Count - 1)
                 {
                     Swap(0, Genes.Count - 1);
                 }
@@ -151,11 +131,22 @@ public class Chromosome
 
     public void DisplayGenes()
     {
-        string gLine = string.Empty;
+        Debug.Log(ToString());
+    }
+
+    public override string ToString()
+    {
+        string genes = string.Empty;
         foreach (var gene in Genes)
         {
-            gLine += gene.Value;
+            if(gene.IsImmutable)
+            {
+                if(gene.SubGene.Genes[0].Value == 0) genes += "F";
+                if (gene.SubGene.Genes[0].Value == 1) genes += "M";
+                if (gene.SubGene.Genes[0].Value == 2) genes += "P";
+            }
+            else genes += gene.Value;
         }
-        Debug.Log(gLine);
+        return genes;
     }
 }

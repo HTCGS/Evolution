@@ -15,11 +15,14 @@ public static class EvolutionEngine
     {
         ObjectPool = new List<GameObject>();
         Vector3 pos = new Vector3(-3f, 0, -3f);
+        GameObject parent = GameObject.Find("ObjectPool");
         for (int i = 0; i < objectNum; i++)
         {
             GameObject gameObject = Object.Instantiate(prefab, pos, Quaternion.identity);
-            gameObject.name = i.ToString();
-            gameObject.GetComponentInChildren<Renderer>().material.color = new Color(0, 255, 0, 1);
+            gameObject.transform.SetParent(parent.transform);
+            //gameObject.name = i.ToString();
+            gameObject.name = "Microorganism";
+            //gameObject.GetComponentInChildren<Renderer>().material.color = new Color(0, 255, 0, 1);
             gameObject.SetActive(false);
             ObjectPool.Add(gameObject);
         }
@@ -60,12 +63,6 @@ public static class EvolutionEngine
             color = Color.Lerp(new Color(0, 0, 255, 1), new Color(0, 0, 100, 1), BlueMutation / 1000000);
         }
         else if (foodType == 2)
-        {
-            GrayMutation++;
-            int col = (int)Mathf.Lerp(64, 224, GrayMutation / 1000000);
-            color = new Color(col, col, col, 1);
-        }
-        else if (foodType == 3)
         {
             //color = new Color(Random.Range(100, 255), Random.Range(0, 100), Random.Range(0, 100), 1);
             RedMutation++;
