@@ -8,7 +8,9 @@ public static class Statistics
 {
     public static Dictionary<string, List<DNAInfo>> Population;
 
-    public static Dictionary<string, int> PopulationLife;
+    public static Dictionary<string, List<DNAInfo>> OldLifePopulation;
+
+    public static Dictionary<string, int> OldLife;
 
     public static List<float> AverageDNALength;
 
@@ -17,14 +19,16 @@ public static class Statistics
     static Statistics()
     {
         Population = new Dictionary<string, List<DNAInfo>>();
-        PopulationLife = new Dictionary<string, int>();
+        OldLifePopulation = new Dictionary<string, List<DNAInfo>>();
+        OldLife = new Dictionary<string, int>();
         AverageDNALength = new List<float>();
     }
 
     public static void Analize(List<Creature> pop)
     {
-        GetAverageDNA(pop);
         Time++;
+        GetAverageDNA(pop);
+        LifeAnalize();
         for (int i = 0; i < pop.Count; i++)
         {
             string name = pop[i].DNA.ToString();
@@ -54,6 +58,29 @@ public static class Statistics
         }
     }
 
+    public static void LifeAnalize()
+    {
+        foreach (var item in OldLife)
+        {
+            string name = item.Key;
+            DNAInfo info = new DNAInfo();
+            info.Time = Time;
+            info.Population = item.Value;
+            if (OldLifePopulation.ContainsKey(name))
+            {
+                List<DNAInfo> infoList = OldLifePopulation[name];
+                infoList.Add(info);
+            }
+            else
+            {
+                List<DNAInfo> infoList = new List<DNAInfo>();
+                infoList.Add(info);
+                OldLifePopulation.Add(name, infoList);
+            }
+        }
+        OldLife.Clear();
+    }
+
     public static void GetAverageDNA(List<Creature> pop)
     {
         float sum = 0;
@@ -70,20 +97,20 @@ public static class Statistics
         string name = creature.DNA.ToString();
         if (Population.ContainsKey(name))
         {
-            if (PopulationLife.ContainsKey(name))
+            if (OldLife.ContainsKey(name))
             {
-                PopulationLife[name]++;
+                OldLife[name]++;
             }
             else
             {
-                PopulationLife.Add(name, 1);
+                OldLife.Add(name, 1);
             }
         }
     }
 
     public static void Save()
     {
-        using (System.IO.StreamWriter file = new System.IO.StreamWriter(@"C:\Users\Киря\Desktop\BioStatistics.csv"))
+        using (System.IO.StreamWriter file = new System.IO.StreamWriter(@"C:\Users\Киря\Desktop\Population.csv"))
         {
             string header = string.Empty;
             foreach (var item in Population)
@@ -107,6 +134,7 @@ public static class Statistics
                             found = true;
                             break;
                         }
+                        if (infoTime.Time > i) break;
                     }
                     if (!found) line += ",";
                 }
@@ -114,24 +142,95 @@ public static class Statistics
             }
         }
 
-        using (System.IO.StreamWriter file = new System.IO.StreamWriter(@"C:\Users\Киря\Desktop\BioLifeTime.csv"))
+        using (System.IO.StreamWriter file = new System.IO.StreamWriter(@"C:\Users\Киря\Desktop\LifeTime.csv"))
         {
             string header = string.Empty;
             string data = string.Empty;
-            foreach (var item in PopulationLife)
+
+            foreach (var item in OldLifePopulation)
             {
                 header += "," + item.Key;
-                data += "," + item.Value;
             }
             file.WriteLine(header);
-            file.WriteLine(data);
-            file.WriteLine();
-            data = string.Empty;
+
+            for (int i = 1; i <= Time; i++)
+            {
+                data += i.ToString();
+                foreach (var item in OldLifePopulation)
+                {
+                    List<DNAInfo> infoList = item.Value;
+                    bool found = false;
+                    foreach (var info in infoList)
+                    {
+                        if (info.Time == i)
+                        {
+                            data += "," + info.Population;
+                            found = true;
+                            break;
+                        }
+                        if (info.Time > i) break;
+                    }
+                    if (!found) data += ",";
+                }
+                file.WriteLine(data);
+                data = "";
+            }
+        }
+
+        using (System.IO.StreamWriter file = new System.IO.StreamWriter(@"C:\Users\Киря\Desktop\DNA.csv"))
+        {
+            string data = string.Empty;
             foreach (var item in AverageDNALength)
             {
                 data += "," + item;
             }
             file.WriteLine(data);
+        }
+
+        using (System.IO.StreamWriter file = new System.IO.StreamWriter(@"C:\Users\Киря\Desktop\LastPopulation.csv"))
+        {
+            string header = string.Empty;
+            string data = string.Empty;
+
+            foreach (var item in Population)
+            {
+                List<DNAInfo> infoList = item.Value;
+                foreach (var info in infoList)
+                {
+                    if (info.Time >= Time - 5 && info.Time <= Time) 
+                    {
+                        header += "," + item.Key;
+                        break;
+                    }
+                }
+            }
+            file.WriteLine(header);
+            for (int i = Time - 5; i <= Time; i++)
+            {
+                data += i.ToString();
+                foreach (var item in Population)
+                {
+                    List<DNAInfo> infoList = item.Value;
+                    bool foundInRange = false;
+                    bool found = false;
+                    foreach (var info in infoList)
+                    {
+                        if (info.Time >= Time - 5 && info.Time <= Time)
+                        {
+                            foundInRange = true;
+                            if (info.Time == i)
+                            {
+                                data += "," + info.Population;
+                                found = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (foundInRange && !found) data += ",";
+                }
+                file.WriteLine(data);
+                data = "";
+            }
         }
     }
 

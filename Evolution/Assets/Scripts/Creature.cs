@@ -32,7 +32,7 @@ public class Creature : MonoBehaviour
         {
             VirtualMachine.Step(this);
             if (DNA.GenePos >= DNA.Genes.Count) DNA.GenePos = 0;
-            //Energy--;
+            Energy--;
             if (Energy <= 0)
             {
                 EvolutionEngine.GiveBackObject(gameObject);
@@ -41,7 +41,7 @@ public class Creature : MonoBehaviour
             if (LifeTime >= MaxLifeTime)
             {
                 DNA.GenePos = 0;
-                //Statistics.AddOldestDNA(this);
+                Statistics.AddOldestDNA(this);
                 EvolutionEngine.GiveBackObject(gameObject);
             }
             if (Energy >= MaxEnergy) Division();

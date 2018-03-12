@@ -51,7 +51,7 @@ public class EnviromentGenerator : MonoBehaviour
             {
                 pop.Add(item.GetComponent<Creature>());
             }
-            //Statistics.Analize(pop);
+            Statistics.Analize(pop);
             Statistics.GetAverageDNA(pop);
             time = 0;
             run = false;

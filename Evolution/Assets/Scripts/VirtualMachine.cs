@@ -28,12 +28,13 @@ static class VirtualMachine
                 jump = Move(creature.gameObject);
                 if (jump == 0)
                 {
-                    creature.Energy -= 1;
-                    chromosome.GenePos++; ;
+                    creature.Energy--;
+                    chromosome.GenePos++;
                     return;
                 }
                 else
                 {
+                    creature.Energy--;
                     //i++;
                     //chromosome.GenePos++;
                 }
@@ -161,7 +162,7 @@ static class VirtualMachine
 
     public static int Rotate(GameObject gameObject)
     {
-        int rotation = UnityEngine.Random.Range(0, 7);
+        int rotation = UnityEngine.Random.Range(1, 8);
         int angle = rotation * 45;
         Vector3 euler = gameObject.transform.rotation.eulerAngles;
         gameObject.transform.rotation = Quaternion.Euler(Mathf.RoundToInt(euler.x), Mathf.RoundToInt(euler.y + angle), Mathf.RoundToInt(euler.z));
